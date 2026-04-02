@@ -1,8 +1,11 @@
+% NPN BJT example: evaluate Hessian and verify with finite differences
+% x = [VB, VC, VE, Vcc]
+
 % Build function
 f = build_example_e1();
 
 % Test input
-x = [0.7; 0.6; 0.65; 0.2];
+x = [0.70; 5.0; 0.0; 12.0];
 
 % Evaluate Hessian
 H = eval_hessian(f, x);
@@ -26,9 +29,9 @@ H_fd = zeros(n, m, m);
 J0   = eval_jacobian(f, x);
 
 for j = 1:m
-    xp        = x;
-    xp(j)     = xp(j) + h;
-    Jp        = eval_jacobian(f, xp);
+    xp          = x;
+    xp(j)       = xp(j) + h;
+    Jp          = eval_jacobian(f, xp);
     H_fd(:,j,:) = (Jp - J0) / h;
 end
 

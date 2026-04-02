@@ -1,12 +1,12 @@
-% Darlington pair example: evaluate nonlinear function
-% x = [VB1, VC, VM, VE2, Vcc]
-%   VB1=1.30 V, VC=10.0 V, VM=0.65 V, VE2=0.0 V, Vcc=15.0 V
+% Six-node diode network example: evaluate nonlinear function
+% x = [V1, V2, V3, V4, V5, V6]
+%   Descending node voltages with V6 = 0 (ground)
 
 % Build function
 f = build_example_e3();
 
-% Test input (Darlington in forward-active region)
-x = [1.30; 10.0; 0.65; 0.0; 15.0];
+% Test input
+x = [3.0; 2.5; 2.0; 1.5; 1.0; 0.0];
 
 % Evaluate
 y = eval_nonlinear(f, x);

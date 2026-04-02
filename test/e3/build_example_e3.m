@@ -1,68 +1,55 @@
 function fstruct = build_example_e3()
-% Darlington pair: two cascaded NPN BJTs (Q1 drives Q2).
+% Six-node diode network with main chain and shortcut paths.
 %
-% State variables: x = [VB1, VC, VM, VE2, Vcc]
-%   VB1 = base of Q1
-%   VC  = shared collector (Q1 and Q2 tied together)
-%   VM  = middle node: emitter of Q1 = base of Q2
-%   VE2 = emitter of Q2
-%   Vcc = supply rail
+% State variables: x = [V1, V2, V3, V4, V5, V6]
+%   V6 = reference / ground node
 %
-% Junctions:
-%   Q1 BE: Vbe1 = VB1 - VM,  coeff = [1,  0, -1,  0, 0]
-%   Q1 BC: Vbc1 = VB1 - VC,  coeff = [1, -1,  0,  0, 0]
-%   Q2 BE: Vbe2 = VM  - VE2, coeff = [0,  0,  1, -1, 0]
-%   Q2 BC: Vbc2 = VM  - VC,  coeff = [0, -1,  1,  0, 0]
+% Topology — each row lists the diodes whose anode is at that node
+% (i.e., current leaves the node through these diodes):
 %
-% Device parameters:
-%   Is1 = 1e-14 A, Is2 = 5e-15 A  (Q1 larger device)
-%   Vt    = 0.026 V
-%   betaF = 100, betaR = 4
-%   alphaF = betaF / (betaF + 1)
-%   alphaR = betaR / (betaR + 1)
+%   Node 1: D1  (V1 -> V2, Is_std)   D7  (V1 -> V4, Is_sch)
+%   Node 2: D2  (V2 -> V3, Is_std)   D8  (V2 -> V5, Is_std)   D9  (V2 -> V6, Is_sch)
+%   Node 3: D3  (V3 -> V4, Is_std)   D10 (V3 -> V6, Is_sch)
+%   Node 4: D4  (V4 -> V5, Is_std)   D11 (V4 -> V2, Is_std)   D12 (V4 -> V6, Is_sch)
+%   Node 5: D5  (V5 -> V6, Is_std)
+%   Node 6: reference — no outgoing nonlinear elements
 %
-% Nonlinear KCL contributions:
-%   y(1) = IB1 = (Is1/betaF)*exp(Vbe1/Vt) + (Is1/betaR)*exp(Vbc1/Vt)
+% Standard diodes: Is_std = 1e-9 A,  Vt = 0.025 V
+% Schottky bypass:  Is_sch = 2e-9 A,  Vt = 0.025 V  (lower forward drop)
 %
-%   y(2) = IC  = alphaF*Is1*exp(Vbe1/Vt) + (Is1/alphaR)*exp(Vbc1/Vt)
-%              + alphaF*Is2*exp(Vbe2/Vt) + (Is2/alphaR)*exp(Vbc2/Vt)
-%
-%   y(3) = I_VM (Q1 emitter / Q2 base node)
-%        = Is1*(1+1/betaF)*exp(Vbe1/Vt) + Is1*exp(Vbc1/Vt)
-%        + (Is2/betaF)*exp(Vbe2/Vt)     + (Is2/betaR)*exp(Vbc2/Vt)
-%
-%   y(4) = IE2 = Is2*(1+1/betaF)*exp(Vbe2/Vt) + Is2*exp(Vbc2/Vt)
-%
-%   y(5) = supply rail, no nonlinear elements
+% Nonlinear KCL contributions (current leaving each node via diodes):
+%   y(1) = Is_std*exp((V1-V2)/Vt) + Is_sch*exp((V1-V4)/Vt)
+%   y(2) = Is_std*exp((V2-V3)/Vt) + Is_std*exp((V2-V5)/Vt) + Is_sch*exp((V2-V6)/Vt)
+%   y(3) = Is_std*exp((V3-V4)/Vt) + Is_sch*exp((V3-V6)/Vt)
+%   y(4) = Is_std*exp((V4-V5)/Vt) + Is_std*exp((V4-V2)/Vt) + Is_sch*exp((V4-V6)/Vt)
+%   y(5) = Is_std*exp((V5-V6)/Vt)
+%   y(6) = 0  (reference node)
 
-    Is1   = 1e-14;
-    Is2   = 5e-15;
-    Vt    = 0.026;
-    betaF = 100;
-    betaR = 4;
-    alphaF = betaF / (betaF + 1);   % 100/101
-    alphaR = betaR / (betaR + 1);   % 4/5
+    Is_std = 1e-9;
+    Is_sch = 2e-9;
+    Vt     = 0.025;
 
-    % y(1): base current of Q1
-    fstruct(1).terms(1) = struct('Is', Is1/betaF,         'coeff', [1,  0, -1,  0,  0], 'Vt', Vt);
-    fstruct(1).terms(2) = struct('Is', Is1/betaR,         'coeff', [1, -1,  0,  0,  0], 'Vt', Vt);
+    % y(1): D1 + D7
+    fstruct(1).terms(1) = struct('Is', Is_std, 'coeff', [ 1, -1,  0,  0,  0,  0], 'Vt', Vt);
+    fstruct(1).terms(2) = struct('Is', Is_sch, 'coeff', [ 1,  0,  0, -1,  0,  0], 'Vt', Vt);
 
-    % y(2): collector current (Q1 + Q2 contributions, 4 terms)
-    fstruct(2).terms(1) = struct('Is', alphaF * Is1,      'coeff', [1,  0, -1,  0,  0], 'Vt', Vt);
-    fstruct(2).terms(2) = struct('Is', Is1 / alphaR,      'coeff', [1, -1,  0,  0,  0], 'Vt', Vt);
-    fstruct(2).terms(3) = struct('Is', alphaF * Is2,      'coeff', [0,  0,  1, -1,  0], 'Vt', Vt);
-    fstruct(2).terms(4) = struct('Is', Is2 / alphaR,      'coeff', [0, -1,  1,  0,  0], 'Vt', Vt);
+    % y(2): D2 + D8 + D9
+    fstruct(2).terms(1) = struct('Is', Is_std, 'coeff', [ 0,  1, -1,  0,  0,  0], 'Vt', Vt);
+    fstruct(2).terms(2) = struct('Is', Is_std, 'coeff', [ 0,  1,  0,  0, -1,  0], 'Vt', Vt);
+    fstruct(2).terms(3) = struct('Is', Is_sch, 'coeff', [ 0,  1,  0,  0,  0, -1], 'Vt', Vt);
 
-    % y(3): current at middle node VM (Q1 emitter / Q2 base), 4 terms
-    fstruct(3).terms(1) = struct('Is', Is1*(1+1/betaF),   'coeff', [1,  0, -1,  0,  0], 'Vt', Vt);
-    fstruct(3).terms(2) = struct('Is', Is1,               'coeff', [1, -1,  0,  0,  0], 'Vt', Vt);
-    fstruct(3).terms(3) = struct('Is', Is2/betaF,         'coeff', [0,  0,  1, -1,  0], 'Vt', Vt);
-    fstruct(3).terms(4) = struct('Is', Is2/betaR,         'coeff', [0, -1,  1,  0,  0], 'Vt', Vt);
+    % y(3): D3 + D10
+    fstruct(3).terms(1) = struct('Is', Is_std, 'coeff', [ 0,  0,  1, -1,  0,  0], 'Vt', Vt);
+    fstruct(3).terms(2) = struct('Is', Is_sch, 'coeff', [ 0,  0,  1,  0,  0, -1], 'Vt', Vt);
 
-    % y(4): emitter current of Q2
-    fstruct(4).terms(1) = struct('Is', Is2*(1+1/betaF),   'coeff', [0,  0,  1, -1,  0], 'Vt', Vt);
-    fstruct(4).terms(2) = struct('Is', Is2,               'coeff', [0, -1,  1,  0,  0], 'Vt', Vt);
+    % y(4): D4 + D11 + D12
+    fstruct(4).terms(1) = struct('Is', Is_std, 'coeff', [ 0,  0,  0,  1, -1,  0], 'Vt', Vt);
+    fstruct(4).terms(2) = struct('Is', Is_std, 'coeff', [ 0, -1,  0,  1,  0,  0], 'Vt', Vt);
+    fstruct(4).terms(3) = struct('Is', Is_sch, 'coeff', [ 0,  0,  0,  1,  0, -1], 'Vt', Vt);
 
-    % y(5): supply rail — no nonlinear elements
-    fstruct(5).terms = [];
+    % y(5): D5
+    fstruct(5).terms(1) = struct('Is', Is_std, 'coeff', [ 0,  0,  0,  0,  1, -1], 'Vt', Vt);
+
+    % y(6): reference node — no nonlinear elements
+    fstruct(6).terms = [];
 end

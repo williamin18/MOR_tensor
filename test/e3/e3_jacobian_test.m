@@ -1,11 +1,11 @@
-% Darlington pair example: evaluate Jacobian and verify with finite differences
-% x = [VB1, VC, VM, VE2, Vcc]
+% Six-node diode network example: evaluate Jacobian and verify with finite differences
+% x = [V1, V2, V3, V4, V5, V6]
 
 % Build function
 f = build_example_e3();
 
 % Test input
-x = [1.30; 10.0; 0.65; 0.0; 15.0];
+x = [3.0; 2.5; 2.0; 1.5; 1.0; 0.0];
 
 % Evaluate Jacobian
 J = eval_jacobian(f, x);

@@ -1,11 +1,11 @@
-% NPN BJT example: evaluate Hessian and verify with finite differences
-% x = [VB, VC, VE, Vcc]
+% Darlington pair example: evaluate Hessian and verify with finite differences
+% x = [VB1, VC, VM, VE2, Vcc]
 
 % Build function
 f = build_example_e2();
 
 % Test input
-x = [0.70; 5.0; 0.0; 12.0];
+x = [1.30; 10.0; 0.65; 0.0; 15.0];
 
 % Evaluate Hessian
 H = eval_hessian(f, x);
