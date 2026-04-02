@@ -6,7 +6,7 @@
 f = build_example_e3();
 
 % Test input
-x = [3.0; 2.5; 2.0; 1.5; 1.0; 0.0];
+x = [0.30; 0.25; 0.20; 0.15; 0.10; 0.0];
 
 % Evaluate
 y = eval_nonlinear(f, x);
