@@ -1,11 +1,11 @@
-% NPN BJT example: evaluate Jacobian and verify with finite differences
-% x = [VB, VC, VE, Vcc]
+% Darlington pair example: evaluate Jacobian and verify with finite differences
+% x = [VB1, VC, VM, VE2, Vcc]
 
 % Build function
 f = build_example_e2();
 
 % Test input
-x = [0.70; 5.0; 0.0; 12.0];
+x = [1.30; 10.0; 0.65; 0.0; 15.0];
 
 % Evaluate Jacobian
 J = eval_jacobian(f, x);
@@ -25,8 +25,8 @@ J_fd = zeros(n, m);
 y0   = eval_nonlinear(f, x);
 
 for j = 1:m
-    xp       = x;
-    xp(j)    = xp(j) + h;
+    xp        = x;
+    xp(j)     = xp(j) + h;
     J_fd(:,j) = (eval_nonlinear(f, xp) - y0) / h;
 end
 

@@ -1,12 +1,12 @@
-% NPN BJT example: evaluate nonlinear function
-% x = [VB, VC, VE, Vcc]
-%   VB=0.70 V (base), VC=5.0 V (collector), VE=0.0 V (emitter), Vcc=12 V
+% Darlington pair example: evaluate nonlinear function
+% x = [VB1, VC, VM, VE2, Vcc]
+%   VB1=1.30 V, VC=10.0 V, VM=0.65 V, VE2=0.0 V, Vcc=15.0 V
 
 % Build function
 f = build_example_e2();
 
-% Test input
-x = [0.70; 5.0; 0.0; 12.0];
+% Test input (Darlington in forward-active region)
+x = [1.30; 10.0; 0.65; 0.0; 15.0];
 
 % Evaluate
 y = eval_nonlinear(f, x);
