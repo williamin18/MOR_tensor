@@ -1,4 +1,4 @@
-function fstruct = build_example()
+function fstruct = build_example_e1()
 
     % y(1)
     fstruct(1).terms = struct( ...

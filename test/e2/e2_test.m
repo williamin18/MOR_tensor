@@ -3,7 +3,7 @@
 %   VB=0.70 V (base), VC=5.0 V (collector), VE=0.0 V (emitter), Vcc=12 V
 
 % Build function
-f = build_example();
+f = build_example_e2();
 
 % Test input
 x = [0.70; 5.0; 0.0; 12.0];

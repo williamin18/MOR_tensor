@@ -1,4 +1,4 @@
-function fstruct = build_example()
+function fstruct = build_example_e4()
 % Six-node diode network with main chain and shortcut paths.
 %
 % State variables: x = [V1, V2, V3, V4, V5, V6]

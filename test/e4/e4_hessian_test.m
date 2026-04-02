@@ -2,7 +2,7 @@
 % x = [V1, V2, V3, V4, V5, V6]
 
 % Build function
-f = build_example();
+f = build_example_e4();
 
 % Test input
 x = [3.0; 2.5; 2.0; 1.5; 1.0; 0.0];

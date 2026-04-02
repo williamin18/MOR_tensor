@@ -1,4 +1,4 @@
-function fstruct = build_example()
+function fstruct = build_example_e2()
 % NPN BJT in common-emitter configuration (Ebers-Moll model).
 %
 % State variables: x = [VB, VC, VE, Vcc]
