@@ -3,7 +3,7 @@
 %   Descending node voltages with V6 = 0 (ground)
 
 % Build function
-f = build_example();
+f = build_example_e4();
 
 % Test input
 x = [3.0; 2.5; 2.0; 1.5; 1.0; 0.0];

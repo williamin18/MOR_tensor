@@ -1,5 +1,5 @@
 % Build function
-f = build_example();
+f = build_example_e1();
 
 % Test input
 x = [0.7; 0.6; 0.65; 0.2];

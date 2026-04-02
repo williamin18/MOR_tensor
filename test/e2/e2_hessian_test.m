@@ -2,7 +2,7 @@
 % x = [VB, VC, VE, Vcc]
 
 % Build function
-f = build_example();
+f = build_example_e2();
 
 % Test input
 x = [0.70; 5.0; 0.0; 12.0];

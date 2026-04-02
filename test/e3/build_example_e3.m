@@ -1,4 +1,4 @@
-function fstruct = build_example()
+function fstruct = build_example_e3()
 % Darlington pair: two cascaded NPN BJTs (Q1 drives Q2).
 %
 % State variables: x = [VB1, VC, VM, VE2, Vcc]
