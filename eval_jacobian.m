@@ -1,17 +1,46 @@
 function J = eval_jacobian(fstruct, x)
-    n = length(fstruct);
+    % eval_jacobian  Compute the Jacobian matrix of f(x) w.r.t. x.
+    %
+    %   J = eval_jacobian(fstruct, x)
+    %
+    %   Inputs:
+    %     fstruct - array of element structs (see eval_nonlinear)
+    %     x       - m x 1 node-voltage vector
+    %
+    %   Output:
+    %     J - m x m matrix where J(i,j) = d f_i / d x_j
+    %
+    %   The -1 constant in each device model vanishes under differentiation.
+    %   For each element with junction voltage u = c*x:
+    %     scale = (Is / Vt) * exp(u / Vt)
+    %   Contributions are scattered to terminal rows with appropriate weights.
+
     m = length(x);
-    J = zeros(n, m);
+    J = zeros(m, m);
 
-    for i = 1:n
-        terms = fstruct(i).terms;
+    for k = 1:length(fstruct)
+        elem = fstruct(k);
+        nd   = elem.nodes;
 
-        for k = 1:length(terms)
-            t = terms(k);
+        % Build coefficient row vector c (1 x m)
+        c = zeros(1, m);
 
-            exponent = (t.coeff * x) / t.Vt;
-            scale    = (t.Is / t.Vt) * exp(exponent);
-            J(i,:)   = J(i,:) + scale * t.coeff;
+        if strcmp(elem.type, 'diode')
+            c(nd(1)) =  1;
+            c(nd(2)) = -1;
+            u     = c * x;
+            scale = (elem.Is / elem.Vt) * exp(u / elem.Vt);
+            J(nd(1), :) = J(nd(1), :) + scale * c;
+            J(nd(2), :) = J(nd(2), :) - scale * c;
+
+        elseif strcmp(elem.type, 'npn_bjt')
+            c(nd(1)) =  1;   % base
+            c(nd(3)) = -1;   % emitter
+            u     = c * x;
+            scale = (elem.Is / elem.Vt) * exp(u / elem.Vt);
+            J(nd(1), :) = J(nd(1), :) + scale / (elem.beta + 1) * c;
+            J(nd(2), :) = J(nd(2), :) + scale * elem.beta / (elem.beta + 1) * c;
+            J(nd(3), :) = J(nd(3), :) - scale * c;
         end
     end
 end

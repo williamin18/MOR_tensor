@@ -24,7 +24,7 @@ end
 % Finite-difference verification (perturb Jacobian)
 h    = 1e-5;
 m    = length(x);
-n    = length(f);
+n    = length(x);
 H_fd = zeros(n, m, m);
 J0   = eval_jacobian(f, x);
 

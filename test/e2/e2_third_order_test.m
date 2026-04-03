@@ -25,7 +25,7 @@ end
 % Finite-difference verification (perturb Hessian)
 h    = 1e-4;
 m    = length(x);
-n    = length(f);
+n    = length(x);
 T_fd = zeros(n, m, m, m);
 H0   = eval_hessian(f, x);
 
