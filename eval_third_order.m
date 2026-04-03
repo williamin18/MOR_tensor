@@ -4,35 +4,56 @@ function T = eval_third_order(fstruct, x)
     %   T = eval_third_order(fstruct, x)
     %
     %   Inputs:
-    %     fstruct - array of structs describing the nonlinear system
-    %     x       - m x 1 input vector
+    %     fstruct - array of element structs (see eval_nonlinear)
+    %     x       - m x 1 node-voltage vector
     %
     %   Output:
-    %     T - n x m x m x m tensor where T(i,j,l,p) = d^3 f_i / (dx_j dx_l dx_p)
+    %     T - m x m x m x m tensor where T(i,j,l,p) = d^3 f_i / (dx_j dx_l dx_p)
     %
-    %   Each term in fstruct(i).terms contributes:
-    %     d^3 f_i / (dx_j dx_l dx_p) += (Is / Vt^3) * coeff(j) * coeff(l) * coeff(p) * exp(coeff' * x / Vt)
+    %   For each element with junction voltage u = c*x:
+    %     scale3 = (Is / Vt^3) * exp(u / Vt)
+    %   Contributions are scattered to terminal rows with appropriate weights:
+    %     T(node_row, :, :, :) += weight * scale3 * (c ⊗ c ⊗ c)
 
-    n = length(fstruct);
     m = length(x);
-    T = zeros(n, m, m, m);
+    T = zeros(m, m, m, m);
 
-    for i = 1:n
-        terms = fstruct(i).terms;
+    for k = 1:length(fstruct)
+        elem = fstruct(k);
+        nd   = elem.nodes;
 
-        for k = 1:length(terms)
-            t = terms(k);
+        c = zeros(1, m);
 
-            exponent = (t.coeff * x) / t.Vt;
-            scale    = (t.Is / t.Vt^3) * exp(exponent);
+        if strcmp(elem.type, 'diode')
+            c(nd(1)) =  1;
+            c(nd(2)) = -1;
+            u      = c * x;
+            scale3 = (elem.Is / elem.Vt^3) * exp(u / elem.Vt);
 
-            % Compute outer product coeff ⊗ coeff ⊗ coeff (m x m x m tensor)
+            % Compute outer product c ⊗ c ⊗ c  (m x m x m tensor)
             coeff_outer = zeros(m, m, m);
             for j = 1:m
-                coeff_outer(j,:,:) = t.coeff(j) * (t.coeff' * t.coeff);
+                coeff_outer(j, :, :) = c(j) * (c' * c);
             end
 
-            T(i,:,:,:) = squeeze(T(i,:,:,:)) + scale * coeff_outer;
+            T(nd(1), :, :, :) = squeeze(T(nd(1), :, :, :)) + scale3 * coeff_outer;
+            T(nd(2), :, :, :) = squeeze(T(nd(2), :, :, :)) - scale3 * coeff_outer;
+
+        elseif strcmp(elem.type, 'npn_bjt')
+            c(nd(1)) =  1;   % base
+            c(nd(3)) = -1;   % emitter
+            u      = c * x;
+            scale3 = (elem.Is / elem.Vt^3) * exp(u / elem.Vt);
+
+            % Compute outer product c ⊗ c ⊗ c  (m x m x m tensor)
+            coeff_outer = zeros(m, m, m);
+            for j = 1:m
+                coeff_outer(j, :, :) = c(j) * (c' * c);
+            end
+
+            T(nd(1), :, :, :) = squeeze(T(nd(1), :, :, :)) + scale3 / (elem.beta + 1) * coeff_outer;
+            T(nd(2), :, :, :) = squeeze(T(nd(2), :, :, :)) + scale3 * elem.beta / (elem.beta + 1) * coeff_outer;
+            T(nd(3), :, :, :) = squeeze(T(nd(3), :, :, :)) - scale3 * coeff_outer;
         end
     end
 end

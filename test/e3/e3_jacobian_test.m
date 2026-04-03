@@ -20,7 +20,7 @@ disp(J);
 % Finite-difference verification
 h    = 1e-6;
 m    = length(x);
-n    = length(f);
+n    = length(x);
 J_fd = zeros(n, m);
 y0   = eval_nonlinear(f, x);
 
