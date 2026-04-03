@@ -4,7 +4,7 @@
 f = build_example_e2();
 
 % Test input
-x = [0.70; 1.40; 5.0; 0.0; 12.0];
+x = [1.30; 10.0; 0.65; 0.0; 15.0];
 
 % Evaluate third-order tensor
 T = eval_third_order(f, x);
