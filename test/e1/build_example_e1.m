@@ -27,7 +27,11 @@ function fstruct = build_example_e1()
     beta_val = 100;
 
     % DC operating-point voltages (must match x_dc in the test).
-    VB_dc  = 0.70;
+    % VB_dc is chosen so that Ib_dc ≈ 1 mA, which ensures that a signal
+    % amplitude of 1e-4 A is a true small signal (< 10 % of the DC bias
+    % current) and the circuit stays in the forward-active region for both
+    % half-cycles of the sinusoidal excitation.
+    VB_dc  = 0.78;
     VC_dc  = 5.0;
     VE_dc  = 0.0;
     Vcc_dc = 12.0;
