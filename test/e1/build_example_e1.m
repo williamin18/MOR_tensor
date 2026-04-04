@@ -13,7 +13,7 @@ function fstruct = build_example_e1()
 %   beta = 100      (forward current gain)
 %
 % Bias resistors (sized so that KCL at nodes 1 and 2 is satisfied with
-% zero external excitation at the DC operating point VB=0.7, VC=5, VE=0,
+% zero external excitation at the DC operating point VB=0.78, VC=5, VE=0,
 % Vcc=12):
 %   RB: base bias resistor, node 4 (Vcc) -> node 1 (base)
 %   RC: collector load resistor, node 4 (Vcc) -> node 2 (collector)

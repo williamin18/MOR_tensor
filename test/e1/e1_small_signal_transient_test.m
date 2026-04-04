@@ -26,7 +26,7 @@
 %       first-order Taylor expansion underestimates the exponential BJT
 %       Jacobian by more than 2x, causing divergence or very slow
 %       linear convergence; with it the correction ratio stays below 1
-%       and the iteration converges in roughly 11 steps.
+%       and the iteration converges in roughly 4 steps.
 %
 % Pass criteria:
 %   1. Both methods converge at every time step.
