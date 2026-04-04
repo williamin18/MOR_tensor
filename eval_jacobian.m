@@ -41,6 +41,15 @@ function J = eval_jacobian(fstruct, x)
             J(nd(1), :) = J(nd(1), :) + scale / (elem.beta + 1) * c;
             J(nd(2), :) = J(nd(2), :) + scale * elem.beta / (elem.beta + 1) * c;
             J(nd(3), :) = J(nd(3), :) - scale * c;
+
+        elseif strcmp(elem.type, 'resistor')
+            % nodes = [a, b], R = resistance
+            % Conductance stamp: G added to (a,a) and (b,b), -G to (a,b) and (b,a).
+            G = 1 / elem.R;
+            J(nd(1), nd(1)) = J(nd(1), nd(1)) + G;
+            J(nd(1), nd(2)) = J(nd(1), nd(2)) - G;
+            J(nd(2), nd(1)) = J(nd(2), nd(1)) - G;
+            J(nd(2), nd(2)) = J(nd(2), nd(2)) + G;
         end
     end
 end

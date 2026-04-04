@@ -42,6 +42,14 @@ function y = eval_nonlinear(fstruct, x)
             y(nd(1)) = y(nd(1)) + Ib;   % base
             y(nd(2)) = y(nd(2)) + Ic;   % collector
             y(nd(3)) = y(nd(3)) - Ie;   % emitter
+
+        elseif strcmp(elem.type, 'resistor')
+            % nodes = [a, b], R = resistance
+            % I = (x(a) - x(b)) / R  flows from node a toward node b
+            G = 1 / elem.R;
+            I = G * (x(nd(1)) - x(nd(2)));
+            y(nd(1)) = y(nd(1)) + I;
+            y(nd(2)) = y(nd(2)) - I;
         end
     end
 end

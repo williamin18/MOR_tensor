@@ -42,6 +42,9 @@ function H = eval_hessian(fstruct, x)
             H(nd(1), :, :) = squeeze(H(nd(1), :, :)) + scale2 / (elem.beta + 1) * cc;
             H(nd(2), :, :) = squeeze(H(nd(2), :, :)) + scale2 * elem.beta / (elem.beta + 1) * cc;
             H(nd(3), :, :) = squeeze(H(nd(3), :, :)) - scale2 * cc;
+
+        elseif strcmp(elem.type, 'resistor')
+            % Linear element: no second-order contribution to the Hessian.
         end
     end
 end

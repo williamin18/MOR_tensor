@@ -4,10 +4,14 @@
 %
 % At each time step the nonlinear KCL system
 %
-%   eval_nonlinear(f, x) = b_dc + u(t) * e_base
+%   eval_nonlinear(f, x)(free_nodes) = b_dc(free_nodes) + u(t) * e_base(free_nodes)
 %
 % is solved via Newton iterations, where u(t) is a small sinusoidal signal
-% injected at the base node.  Two methods are compared:
+% injected at the base node.  Nodes 3 (VE = 0) and 4 (Vcc = 12 V) are
+% voltage-constrained and remain fixed throughout; only the free nodes
+% free_nodes = [1, 2] (VB and VC) are updated.
+%
+% Two methods are compared:
 %
 %   (A) Standard Newton:
 %       Jacobian J(x_k) is recomputed from x_k at every iteration.
@@ -25,8 +29,12 @@
 
 f    = build_example_e1();
 x_dc = [0.70; 5.0; 0.0; 12.0];           % DC operating point
-b_dc = eval_nonlinear(f, x_dc);           % KCL residual at DC point
+b_dc = eval_nonlinear(f, x_dc);           % KCL residual at DC point (= 0 at free nodes)
 m    = length(x_dc);
+
+% Nodes whose voltages are solved by Newton (VB=1, VC=2).
+% Nodes 3 (VE=0) and 4 (Vcc=12) are voltage-constrained and held fixed.
+free_nodes = [1, 2];
 
 % Pre-compute Jacobian and Hessian at the DC operating point once.
 J0 = eval_jacobian(f, x_dc);              % m x m
@@ -62,12 +70,13 @@ for t_idx = 1:n_steps
     converged = false;
     for iter = 1:max_iter
         r = eval_nonlinear(f, x_k) - b_t;
-        if norm(r) <= tol_res
+        if norm(r(free_nodes)) <= tol_res
             converged = true;
             break;
         end
-        J_k = eval_jacobian(f, x_k);
-        x_k = x_k - J_k \ r;
+        J_k   = eval_jacobian(f, x_k);
+        delta = J_k(free_nodes, free_nodes) \ r(free_nodes);
+        x_k(free_nodes) = x_k(free_nodes) - delta;
     end
     x_std(:, t_idx) = x_k;
     ok_std(t_idx)   = converged;
@@ -77,16 +86,17 @@ for t_idx = 1:n_steps
     converged = false;
     for iter = 1:max_iter
         r = eval_nonlinear(f, x_k) - b_t;
-        if norm(r) <= tol_res
+        if norm(r(free_nodes)) <= tol_res
             converged = true;
             break;
         end
-        dx       = x_k - x_dc;
-        J_approx = J0;
+        dx           = x_k - x_dc;
+        J_approx     = J0;
         for j = 1:m
             J_approx = J_approx + dx(j) * squeeze(H0(:, j, :));
         end
-        x_k = x_k - J_approx \ r;
+        delta = J_approx(free_nodes, free_nodes) \ r(free_nodes);
+        x_k(free_nodes) = x_k(free_nodes) - delta;
     end
     x_tay(:, t_idx) = x_k;
     ok_tay(t_idx)   = converged;
