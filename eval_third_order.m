@@ -54,6 +54,8 @@ function T = eval_third_order(fstruct, x)
             T(nd(1), :, :, :) = squeeze(T(nd(1), :, :, :)) + scale3 / (elem.beta + 1) * coeff_outer;
             T(nd(2), :, :, :) = squeeze(T(nd(2), :, :, :)) + scale3 * elem.beta / (elem.beta + 1) * coeff_outer;
             T(nd(3), :, :, :) = squeeze(T(nd(3), :, :, :)) - scale3 * coeff_outer;
+        elseif strcmp(elem.type, 'resistor')
+            % Linear element: no third-order contribution.
         end
     end
 end
