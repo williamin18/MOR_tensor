@@ -28,8 +28,8 @@ function T = recover_cp_tensor(CP)
         term = 1;
         for d = 1:k
             vec      = CP(:, r, d);          % m x 1
-            new_dims        = ones(1, k);
-            new_dims(d)     = m;
+            new_dims    = ones(1, k);
+            new_dims(d) = m;
             term = term .* reshape(vec, new_dims);
         end
         T = T + term;
