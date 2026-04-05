@@ -4,6 +4,7 @@
 % Runs the convergence test for each of the three circuit examples and prints
 % an overall pass/fail summary.  Execute this script from the repository root.
 
+addpath('derivatives');
 addpath('test/e1');
 addpath('test/e2');
 addpath('test/e3');

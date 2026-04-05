@@ -8,6 +8,8 @@
 %
 % Execute this script from the repository root.
 
+addpath('derivatives');
+addpath('cp');
 addpath('test/e1');
 addpath('test/e2');
 addpath('test/e3');
